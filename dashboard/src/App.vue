@@ -2,16 +2,19 @@
   <div id="app">
     <div class="content">
       <div>
-        <GuiScreen/>
-        <HornVisualizer ref="horn"/>
+        <div id="states">
+          <GuiScreen/>
+          <HornVisualizer ref="horn"/>
+        </div>
+        <LogVisualizer ref="console"/>
       </div>  
       <div class="button-container">
         <NumberSelector/>
-        <PushButton text="Race Afbreken" @click="handleButtonClick(1)"/>
-        <PushButton text="Uitstel" @click="handleButtonClick(2)"/>
-        <PushButton text="Toeter" @mousedown="holdHonk()" @click="handleButtonClick(3)"/>
-        <PushButton text="Finish" @click="handleButtonClick(4)"/>
-        <PushButton text="Start / Stop" @click="handleButtonClick(5)"/>
+        <PushButton text="Race Afbreken" @mousedown="handleButtonClick(1)"/>
+        <PushButton text="Uitstel" @mousedown="handleButtonClick(2)"/>
+        <PushButton text="Toeter" @mousedown="holdHonk()" @mouseup="handleButtonClick(3)"/>
+        <PushButton text="Finish" @mousedown="handleButtonClick(4)"/>
+        <PushButton text="Start / Stop" @mousedown="handleButtonClick(5)"/>
       </div>
     </div>
   </div>
@@ -22,6 +25,7 @@ import GuiScreen from './components/ScreenSaver'
 import PushButton from './components/PushButton'
 import NumberSelector from './components/NumberSelector'
 import HornVisualizer from './components/HornVisualizer.vue'
+import LogVisualizer from './components/LogVisualizer.vue'
 
 export default {
   name: 'App',
@@ -30,30 +34,38 @@ export default {
     GuiScreen,
     PushButton,
     NumberSelector,
-    HornVisualizer
+    HornVisualizer,
+    LogVisualizer
   },
   methods: {
     handleButtonClick(buttonNumber) {
       const horn = this.$refs.horn;
+      const console = this.$refs.console;
       switch (buttonNumber) {
         case 1:
           alert('De race word afgebroken, er gaan drie toeters achterelkaar af en nog een toeter één minuut vooor het waarschuwingssignaal.');
+          console.log("Race afbreken, N-vlag gehesen");
           horn.requestHonk(3);
           horn.queuHonk(5000);
           break;
         case 2:
           alert('De race word uitgesteld, er gaan twee toeters achterelkaar af en nog een toeter één minuut vooor het waarschuwingssignaal.');
+          console.log("Uitstel voor de start, stop procedure");
+
           horn.requestHonk(2);
           horn.queuHonk(5000);
           break;
         case 3:
+          console.log("Toeter losgelaten");
           horn.honk(0);
           break;
         case 4:
           alert('De race is afgelopen.');
+          console.log("Finish of boironding");
           break;
         case 5:
           alert('Start / Stop');
+          console.log("Procedure gestart / gestopt");
           break;
         default:
           break;
@@ -61,7 +73,9 @@ export default {
     },
 
     holdHonk(){
+      const console = this.$refs.console;
       const horn = this.$refs.horn;
+      console.log("Toeter ingedrukt");
       horn.honk(1);
     }
   }
@@ -78,6 +92,10 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+#states {
+  display: flex;
 }
 
 .content {
