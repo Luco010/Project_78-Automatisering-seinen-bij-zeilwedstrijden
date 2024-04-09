@@ -1,15 +1,17 @@
 <template>
   <div id="app">
     <div class="content">
-      <GuiScreen/>
+      <div>
+        <GuiScreen/>
+        <HornVisualizer ref="horn"/>
+      </div>  
       <div class="button-container">
         <NumberSelector/>
-        <PushButton text="Button 1" @click="handleButtonClick(1)"/>
-        <PushButton text="Button 2" @click="handleButtonClick(2)"/>
-        <PushButton text="Button 3" @click="handleButtonClick(3)"/>
-        <PushButton text="Button 4" @click="handleButtonClick(4)"/>
-        <PushButton text="Button 5" @click="handleButtonClick(5)"/>
-        <PushButton text="Button 6" @click="handleButtonClick(6)"/>
+        <PushButton text="Race Afbreken" @click="handleButtonClick(1)"/>
+        <PushButton text="Uitstel" @click="handleButtonClick(2)"/>
+        <PushButton text="Toeter" @mousedown="holdHonk()" @click="handleButtonClick(3)"/>
+        <PushButton text="Finish" @click="handleButtonClick(4)"/>
+        <PushButton text="Start / Stop" @click="handleButtonClick(5)"/>
       </div>
     </div>
   </div>
@@ -19,17 +21,48 @@
 import GuiScreen from './components/ScreenSaver'
 import PushButton from './components/PushButton'
 import NumberSelector from './components/NumberSelector'
+import HornVisualizer from './components/HornVisualizer.vue'
 
 export default {
   name: 'App',
+
   components: {
     GuiScreen,
     PushButton,
-    NumberSelector
+    NumberSelector,
+    HornVisualizer
   },
   methods: {
     handleButtonClick(buttonNumber) {
-      alert('Button ' + buttonNumber + ' clicked!');
+      const horn = this.$refs.horn;
+      switch (buttonNumber) {
+        case 1:
+          alert('De race word afgebroken, er gaan drie toeters achterelkaar af en nog een toeter één minuut vooor het waarschuwingssignaal.');
+          horn.requestHonk(3);
+          horn.queuHonk(5000);
+          break;
+        case 2:
+          alert('De race word uitgesteld, er gaan twee toeters achterelkaar af en nog een toeter één minuut vooor het waarschuwingssignaal.');
+          horn.requestHonk(2);
+          horn.queuHonk(5000);
+          break;
+        case 3:
+          horn.honk(0);
+          break;
+        case 4:
+          alert('De race is afgelopen.');
+          break;
+        case 5:
+          alert('Start / Stop');
+          break;
+        default:
+          break;
+      }
+    },
+
+    holdHonk(){
+      const horn = this.$refs.horn;
+      horn.honk(1);
     }
   }
 }
@@ -48,8 +81,8 @@ export default {
 }
 
 .content {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
 .button-container {
