@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div>
-        <label>Select Green Flag:</label>
+        <label>Select Klassevlag:</label>
         <div>
           <button @click="selectNumber(1, 1)" :class="{ 'selected': selectedNumbers[0] === '1' }">1</button>
           <button @click="selectNumber(1, 2)" :class="{ 'selected': selectedNumbers[0] === '2' }">2</button>
@@ -12,7 +12,7 @@
     </div>
     <div class="row">
       <div>
-        <label>Select Red Flag:</label>
+        <label>Select Zwarte vlag:</label>
         <div>
           <button @click="selectNumber(2, 1)" :class="{ 'selected': selectedNumbers[1] === '1' }">1</button>
           <button @click="selectNumber(2, 2)" :class="{ 'selected': selectedNumbers[1] === '2' }">2</button>
@@ -22,7 +22,7 @@
     </div>
     <div class="row">
       <div>
-        <label>Select Blocked Flag:</label>
+        <label>Select N vlag:</label>
         <div>
           <button @click="selectNumber(3, 1)" :class="{ 'selected': selectedNumbers[2] === '1' }">1</button>
           <button @click="selectNumber(3, 2)" :class="{ 'selected': selectedNumbers[2] === '2' }">2</button>
@@ -42,15 +42,15 @@ export default {
   },
   computed: {
     greenFlagStatus() {
-      console.log('Green flag status:', this.selectedNumbers[0] === '2' ? 'true' : 'false');
+      console.log('KlasseVlag status:', this.selectedNumbers[0] === '2' ? 'true' : 'false');
       return this.selectedNumbers[0] === '2' ? 'true' : 'false';
     },
     redFlagStatus() {
-      console.log('Red flag status:', this.selectedNumbers[1] === '2' ? 'true' : 'false');
+      console.log('Zwarte vlag status:', this.selectedNumbers[1] === '2' ? 'true' : 'false');
       return this.selectedNumbers[1] === '2' ? 'true' : 'false';
     },
     blockedFlagStatus() {
-      console.log('Blocked flag status:', this.selectedNumbers[2] === '2' ? 'true' : 'false');
+      console.log('N vlag status:', this.selectedNumbers[2] === '2' ? 'true' : 'false');
       return this.selectedNumbers[2] === '2' ? 'true' : 'false';
     }
   },

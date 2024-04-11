@@ -4,8 +4,8 @@
       <div class="flag-container">
         <GreenFlag :status="greenFlagStatus" />
         <div>
-          <p v-if="greenFlagStatus">Green Flag True</p>
-          <p v-else>Green Flag False</p>
+          <p v-if="greenFlagStatus">Klassevlag</p>
+          <p v-else>Klassevlag</p>
         </div>
       </div>
     </div>
@@ -13,8 +13,8 @@
       <div class="flag-container">
         <RedFlag :status="redFlagStatus" />
         <div>
-          <p v-if="redFlagStatus">Red Flag True</p>
-          <p v-else>Red Flag False</p>
+          <p v-if="redFlagStatus">Zwarte vlag</p>
+          <p v-else>Zwarte vlag</p>
         </div>
       </div>
     </div>
@@ -22,8 +22,8 @@
       <div class="flag-container">
         <BlockedFlag :status="blockedFlagStatus" />
         <div>
-          <p v-if="blockedFlagStatus">Blocked Flag True</p>
-          <p v-else>Blocked Flag False</p>
+          <p v-if="blockedFlagStatus">N vlag</p>
+          <p v-else>N vlag</p>
         </div>
       </div>
     </div>

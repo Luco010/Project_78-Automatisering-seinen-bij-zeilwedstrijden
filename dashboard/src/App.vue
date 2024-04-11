@@ -51,7 +51,6 @@ export default {
         case 2:
           alert('De race word uitgesteld, er gaan twee toeters achterelkaar af en nog een toeter één minuut vooor het waarschuwingssignaal.');
           console.log("Uitstel voor de start, stop procedure");
-
           horn.requestHonk(2);
           horn.queuHonk(5000);
           break;
@@ -66,6 +65,23 @@ export default {
         case 5:
           alert('Start / Stop');
           console.log("Procedure gestart / gestopt");
+          console.log("Nog 3 minuten voordat race begint, hijs klassevlag");
+          horn.queuHonk(2000);
+
+          setTimeout(() => {
+            console.log("Nog 2 minuten voordat race begint, hijs zwart");
+            horn.queuHonk(2000);
+          }, 60000);
+
+          setTimeout(() => {
+            console.log("Nog 1 minuut voordat race begint, zwart omlaag");
+            horn.queuHonk(2000);
+          }, 120000);
+          
+          setTimeout(() => {
+            console.log("Start race, klassevlag omlaag");
+            horn.queuHonk(2000);
+          }, 180000);
           break;
         default:
           break;
