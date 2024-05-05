@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // Define the analog pin connected to the voltage divider
 const int analogInputPin = A0;
 
