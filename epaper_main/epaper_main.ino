@@ -111,6 +111,8 @@ void createText(String text, int xPos, int yPos, int fontSize) {
   updateScreenContent = true;
 }
 
+// | 0-1 : buttons + switches | 2 : encoder | 3 : SD-card | 4-10 : GPS |
+
 void getInput() {
   for(int i = 0; i < sizeof(inputData) / sizeof(inputData[0]); i++) {
     lastInputData[i] = inputData[i];
@@ -120,10 +122,14 @@ void getInput() {
   int n = 0;
   Wire1.requestFrom(8, inputLength);
   delay(50);
+  Serial.print("data start: ");
   while(Wire1.available() && n < inputLength) {
     input[n] = Wire1.read();
+    Serial.print(input[n]);
+    Serial.print(" ");
     n++;
   }
+  Serial.println("data end");
 //  while(Wire1.available()) {
 //    Wire1.read(); // overflow
 //  }
@@ -242,8 +248,8 @@ void getInput() {
   SDCard = input[3];
 
   if(input[10]) {   //GPS fix
-//    RTC.setDate(input[4], input[5], input[6]);
-//    RTC.setTime(input[7], input[8], input[9]);
+    RTC.setDate(input[4], input[5], input[6]);
+    RTC.setTime(input[7], input[8], input[9]);
     char timeBuffer[32];
     sprintf(timeBuffer,"%02d/%02d/%04d %02d:%02d:%02d", input[4], input[5], input[6], input[7], input[8], input[9]);
     Serial.println(timeBuffer);
@@ -366,7 +372,7 @@ void showOverview() {
     lastFlagTiming.min = startTime.min;
     lastSDCard = SDCard;
     
-    createText(variablesText, 40, HEIGHT / 10 * 3, 5);
+    createText(variablesText, 40, HEIGHT / 10 * 3, 3);
     if(!SDCard) createText("Geen SD", WIDTH / 10 * 7, HEIGHT / 10 * 3, 5);
     else createText("       ", WIDTH / 10 * 7, HEIGHT / 10 * 3, 5);
   }

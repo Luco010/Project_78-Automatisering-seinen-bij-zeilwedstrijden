@@ -1,4 +1,5 @@
-#include <Adafruit_GPS.h>
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
 
 struct timeStruct {
   byte Year = 2021;
@@ -13,15 +14,14 @@ struct timeStruct {
 
 class GPS {
   public:
-    GPS();
-    void initialize(Adafruit_GPS GPS);
+	  GPS(TinyGPSPlus &GPS, SoftwareSerial &ss);
     int updateGPS();
     void getTime(timeStruct &t);
     void setTime(timeStruct &t);
-    bool getGPSFix();
     int getGPSQuality();
     int getDayOfWeek(int yr, int mnth, int dy);
   private:
     struct timeStruct t;
-    Adafruit_GPS GPS;
+    TinyGPSPlus gps;
+    SoftwareSerial *ss;
 };
