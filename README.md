@@ -1,10 +1,10 @@
 # Project_78-Automatisering-seinen-bij-zeilwedstrijden
 
-## branches
+## Branches
 - **main:** Bevat meest recente code.
 - **oud:** Bevat code van de vorige ontwillel groep.
 
-## folders
+## Folders
 
 ### epaper_arduino
 Bevat de code voor de arduino om de inputs en outputs van de hardware te regelen.
