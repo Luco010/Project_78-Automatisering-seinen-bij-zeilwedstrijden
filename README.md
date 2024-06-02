@@ -14,7 +14,7 @@ Bevat de code voor de arduino om de inputs en outputs van de hardware te regelen
 - SoftwareSerial.h
 - TinyGPS++.h
 
-### epaper_main:
+### epaper_main
 Bevat de code voor de esp32 / M5Paper om de applicatie state te regelen het scherm te weergeven.
 
 **Dependencies:**
