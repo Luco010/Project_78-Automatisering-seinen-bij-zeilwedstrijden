@@ -1,3 +1,13 @@
+/**
+ * @file epaper_main.ino
+ * @brief Meant to be run on the Epaper in the Auto Dick 3.
+ * 
+ * This code receives the encoded hardware state from the arduino over an I2C connection.
+ * Tt uses this state data to determen the of the application and displays it on the Epaper screen.
+ * 
+ * This is legacy code in need of refactoring (or better yet, complete re-design). 
+ */
+
 #include <M5EPD.h>
 #include "Rtc.hpp"
 
@@ -67,6 +77,9 @@ void createBox(int xPos, int yPos, int width, int height, bool fill) {
   updateScreenContent = true;
 }
 
+/**
+ * @brief Write text on screen with a border.
+ */
 void createTextBox(int xPos, int yPos, int width, int height, String text, int fontSize, bool center, int borderThickness) {
   canvas.createCanvas(width, height);
   canvas.drawLine(borderThickness / 2, borderThickness / 2, width - borderThickness / 2, borderThickness / 2, borderThickness, 15);
@@ -86,6 +99,9 @@ void createTextBox(int xPos, int yPos, int width, int height, String text, int f
   updateScreenContent = true;
 }
 
+/**
+ * @brief Write text on screen.
+ */
 void createText(String text, int xPos, int yPos, int fontSize) {
   int lineAmount = 1;
   int startChar = 0;
@@ -113,6 +129,12 @@ void createText(String text, int xPos, int yPos, int fontSize) {
 
 // | 0-1 : buttons + switches | 2 : encoder | 3 : SD-card | 4-10 : GPS |
 
+/**
+ * @brief Request hardware state data over I2C.
+ * 
+ * Receives an 11 byte message:
+ * | 0 : buttons | 1 : switches | 2 : encoder | 3 : SD-card | 4-10 : GPS |
+ */
 void getInput() {
   for(int i = 0; i < sizeof(inputData) / sizeof(inputData[0]); i++) {
     lastInputData[i] = inputData[i];
@@ -122,14 +144,10 @@ void getInput() {
   int n = 0;
   Wire1.requestFrom(8, inputLength);
   delay(50);
-  Serial.print("data start: ");
   while(Wire1.available() && n < inputLength) {
     input[n] = Wire1.read();
-    Serial.print(input[n]);
-    Serial.print(" ");
     n++;
   }
-  Serial.println("data end");
 //  while(Wire1.available()) {
 //    Wire1.read(); // overflow
 //  }
@@ -256,6 +274,9 @@ void getInput() {
   }
 }
 
+/**
+ * @brief Create List of booleans determening the LED state of buttons & switches.
+ */
 void makeOutput(bool* output) { 
 //  if((inputData[0] == 0) == repeated) output[0] = true;
 //  if((inputData[2] == 0) == !orangeFlag) output[2] = true;
@@ -270,6 +291,12 @@ void makeOutput(bool* output) {
   if(sendHorn) output[5] = true;
 }
 
+/**
+ * @brief Sends hardware state data over I2C.
+ * 
+ * sends an 12 byte message:
+ * | 0-5 : button & switches LED state | 6 : settings state | 7-10 : time | 11 : flag | 
+ */
 void sendOutput(bool* output) {
   Wire1.beginTransmission(8);
   for(int i = 0; i < 6; i++) {
@@ -298,6 +325,9 @@ void sendOutput(bool* output) {
   delay(25);
 }
 
+/**
+ * @brief Display current time in the corner of the Epaper screen. 
+ */
 void showTime() {
   if(RTC.compareTime(lastTime.hour, lastTime.min, lastTime.sec)) { 
     lastTime = RTC.getTime();
@@ -307,7 +337,13 @@ void showTime() {
   }
 }
 
-String getLine(int index) {
+/**
+ * @brief Create sequence instruction string. 
+ * 
+ * @param index Step index from the sequence.
+ * @return String 
+ */
+String getLine(int index) { 
   char tempFlag[5];
   if(started) {
     for(int i = 0; i < 5; i++) {
@@ -331,6 +367,9 @@ String getLine(int index) {
   return line;
 }
 
+/**
+ * @brief Display the sequence overview.
+ */
 void showOverview() {
   bool updateText = false;
   String lines[sizeof(flag) / sizeof(flag[0])];
@@ -388,17 +427,20 @@ void showStartTime() {
   }
 }
 
+/**
+ * @brief Get index of the current step of the sequence.
+ */
 int getStage() {
   int stage = 0;
   for(int i = 0; i < 5; i++) {
     if(RTC.compareTime(RTC.getTime(), timing[i]) >= 0) stage = i;
-//    Serial.print(String(RTC.compareTime(RTC.getTime(), timing[i])) + "  ");
   }
-//  Serial.println();
-//  Serial.println(stage);
   return stage;
 }
 
+/**
+ * @brief Displays the next instruction on the Epaper screen.
+ */
 void showNext() {
   int stage = getStage();
 //  if(stage == 0 && RTC.compareTime(RTC.getTime(), timing[0]) < 0) {
@@ -414,6 +456,9 @@ void showNext() {
   }
 }
 
+/**
+ * @brief Display the current instruction on the Epaper screen.
+ */
 void showCurrent() {
   int stage = getStage();
   String currentString = getLine(stage);
@@ -430,6 +475,9 @@ void showCurrent() {
   }
 }
 
+/**
+ * @brief Set the global variable `sendHorn` on true 1 second before instruction is to be executed. 
+ */
 void honk() {
   int stage = getStage();
   if(RTC.compareTime(RTC.getTime(), timing[getStage()]) < 1 && RTC.compareTime(RTC.getTime(), timing[getStage()]) >= 0) {

@@ -1,3 +1,11 @@
+/**
+ * @file epaper_arduino.ino
+ * @brief Meant to be run on the Arduino in the Auto Dick 3.
+ * 
+ * This code reads the state of the hardware, encodes it, 
+ * and sends it to the Epaper for processing over an I2C connection.
+ * It receives data from the Epaper about the hardware actions to take. 
+ */
 #include <Arduino.h>
 #include "lib/GPS.h"
 #include <Wire.h>
@@ -24,6 +32,12 @@ SoftwareSerial ss(4,3);
 TinyGPSPlus tinyGPS;
 GPS gps(tinyGPS, ss); 
 
+/**
+ * @brief Sends hardware state data over I2C.
+ *
+ * Sends an 11 byte message:
+ * | 0 : buttons | 1 : switches | 2 : encoder | 3 : SD-card | 4-10 : GPS |
+ */
 void sendData() {
 	byte switches = B00000000;
 	byte buttons = B00000000;
@@ -39,25 +53,36 @@ void sendData() {
 
 	Wire.write(switches);
 	Wire.write(buttons);
-	Wire.write(0);
-	Wire.write(1);
+	Wire.write(0); // TODO: implement encoder
+	Wire.write(1); // TODO: implement SD-card
 	Wire.write(t.Day);
 	Wire.write(t.Month);	
 	Wire.write(t.Year);
 	Wire.write(t.Hour);
 	Wire.write(t.Minute);
 	Wire.write(t.Second);
-	Wire.write(1); // GPS fix?
+	Wire.write(1); // TODO: determen if GPS has fix
 }
 
+/**
+ * @brief Receives hardware state data over I2C.
+ *
+ * This function has not been implemented yet.
+ * It receives 12 bytes:
+ * | 0-5 : button & switches LED state | 6 : settings state | 7-10 : time | 11 : flag |
+ */
 void receiveData(int dataC){
+	Serial.print("Epaper data: ");
+
 	while (Wire.available() > 0)
-	{
 		Serial.print(Wire.read());
-	}
-	Serial.println(" <- some info from epaper");
+
+	Serial.println();
 }
 
+/**
+ * @brief Plays next audio on the MP3
+ */
 void playNext(){
 	digitalWrite(PINMP3, 1);
 	delay(100);
@@ -77,8 +102,6 @@ void setup() {
 	pinMode(PINMP3, OUTPUT);
 	for (size_t i = 0; i < (sizeof(BUTTONS) / sizeof(BUTTONS[0])); i++)
 		pinMode(BUTTONS[i], INPUT);
-
-	Serial.println("hello?");
 }
 
 void loop() {
@@ -88,8 +111,4 @@ void loop() {
 		Serial.println("PLAY");
 		playNext();
 	}
-
-	// timeStruct time;
-	// gps.getTime(time);
-	// Serial.println(time.Minute);
 }
