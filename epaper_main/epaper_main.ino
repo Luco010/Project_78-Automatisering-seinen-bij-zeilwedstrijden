@@ -2,7 +2,7 @@
  * @file epaper_main.ino
  * @brief Meant to be run on the Epaper in the Auto Dick 3.
  * 
- * This code receives the encoded hardware state from the arduino over an I2C connection.
+ * @details This code receives the encoded hardware state from the arduino over an I2C connection.
  * Tt uses this state data to determen the of the application and displays it on the Epaper screen.
  * 
  * This is legacy code in need of refactoring (or better yet, complete re-design). 
@@ -132,7 +132,7 @@ void createText(String text, int xPos, int yPos, int fontSize) {
 /**
  * @brief Request hardware state data over I2C.
  * 
- * Receives an 11 byte message:
+ * @details Receives an 11 byte message:
  * | 0 : buttons | 1 : switches | 2 : encoder | 3 : SD-card | 4-10 : GPS |
  */
 void getInput() {
@@ -295,7 +295,7 @@ void makeOutput(bool* output) {
  * @brief Sends hardware state data over I2C.
  * 
  * sends an 12 byte message:
- * | 0-5 : button & switches LED state | 6 : settings state | 7-10 : time | 11 : flag | 
+ * | 0-5 : button & switches LED state | 6 : audio frament | 7 : settings state | 8-10 : time | 11 : flag | 
  */
 void sendOutput(bool* output) {
   Wire1.beginTransmission(8);
@@ -476,7 +476,7 @@ void showCurrent() {
 }
 
 /**
- * @brief Set the global variable `sendHorn` on true 1 second before instruction is to be executed. 
+ * @brief Checks & set the global variable `sendHorn` on true 1 (second?) before instruction is to be executed. 
  */
 void honk() {
   int stage = getStage();
@@ -487,7 +487,15 @@ void honk() {
   }
 }
 
-int getFragment(char flag, bool up, int typeOfFragment) { //typeOfFragment (30 seconds: 0, 10 seconds: 1, countdown + flag: 2
+/**
+ * @brief Get the sound fragment of an instruction.
+ * 
+ * @param flag Flag of the instruction raised 'k', 'p', 'u' or 'z'.
+ * @param up Select sound fragment about rasing or lowering.
+ * @param typeOfFragment Time step varient (30 seconds: 0, 10 seconds: 1, countdown + flag: 2).
+ * @return fragment index (maybe). 
+ */
+int getFragment(char flag, bool up, int typeOfFragment) {
   int frag = typeOfFragment;
   if(!up) frag += 3;
   if(flag == 'k') frag += 6;
@@ -497,12 +505,35 @@ int getFragment(char flag, bool up, int typeOfFragment) { //typeOfFragment (30 s
   return frag;
 }
 
+/**
+ * @brief Calculate the remaining seconds of an instruction (maybe).
+ * 
+ * @param flag Flag of the instruction raised 'k', 'p', 'u' or 'z'.
+ * @param up Select sound fragment about rasing or lowering.
+ * @param typeOfFragment Time step varient (30 seconds: 0, 10 seconds: 1, countdown + flag: 2).
+ * @return Remaining time in seconds.
+ */
 int getLoopTime(char flag, bool up, int typeOfFragment) {
   int frag = getFragment(flag, up, typeOfFragment);
   float sec = ((frag - currentSoundFragment + totalSoundFragments) % totalSoundFragments) * 0.2;
   return int(round(sec));
 }
 
+/**
+ * @brief Sets the global variables `sendSoundFragment` & `soundFragment` depending on if an audio frament schould be played.
+ * 
+ * @details This function selects the correct audio frament and saves it in global variables
+ * so it can be passed & played from the Arduino. The sending of the data is done via the
+ * `SendOutput()` function.
+ *  
+ * There are 6 audio files for each flag:
+ * - 30 seconds before raising 
+ * - 10 seconds before raising 
+ * - 5 seconds count down & raise command 
+ * - 30 seconds before lowering 
+ * - 10 seconds before lowering 
+ * - 5 seconds count down & lower command
+ */
 void playSound() {
   int stage = getStage();
   int secondsToNextStage = -RTC.compareTime(RTC.getTime(), timing[stage]);
@@ -543,6 +574,11 @@ void playSound() {
 //  Serial.println(secondsToNextStage);
 }
 
+/**
+ * @brief Change the global variables `sendSetting` & `sendTime` to create a new log file on the SD.
+ * 
+ * @details The sending of the data is done via the `SendOutput()` function.
+ */
 void makeFile(rtc_date_t date) {
   sendSetting = 1;
   sendTime.hour = date.day;
@@ -569,6 +605,9 @@ void makeLog() {
   }
 }
 
+/**
+ * @brief Resets all the global vars to their starting value.
+ */
 void resetVars() {
   lastLines[0] = "";
   for(int i = 0; i < 5; i++) {
@@ -609,6 +648,16 @@ void setup() {
   Serial.println("setup complete");
 }
 
+/**
+ * @brief Main state logic loop.
+ * 
+ * @details This function first checks if a date/time is send to 
+ * synchronize the Epaper RTC with the GPS time & date.
+ * 
+ * Second it requests the hardware state from the Arduino.
+ * 
+ * lastly it handles the states of the program. 
+ */
 void loop() {
   if(Serial.available()) {
     String dataString = "";

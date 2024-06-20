@@ -69,7 +69,7 @@ void sendData() {
  *
  * This function has not been implemented yet.
  * It receives 12 bytes:
- * | 0-5 : button & switches LED state | 6 : settings state | 7-10 : time | 11 : flag |
+ * | 0-5 : button & switches LED state | 6 : audio frament | 7 : settings state | 8-10 : time | 11 : flag | 
  */
 void receiveData(int dataC){
 	Serial.print("Epaper data: ");
